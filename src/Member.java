@@ -1,3 +1,5 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 public class Member {
@@ -24,8 +26,16 @@ public class Member {
         return memberID;
     }
 
+
     public ArrayList<Book> getBorrowedBooks() {
         return borrowedBooks;
+    }
+
+    public void printBorrowedBooks () {
+        System.out.println("\nYour borrowed books: ");
+        for (Book book: borrowedBooks) {
+            System.out.println("Title: " + book.getTitle() + ", Author: " + book.getAuthor() + ", ISBN: " + book.getISBN());
+        }
     }
 
     public ArrayList<eBook> getDownloadedEBooks() {
@@ -74,6 +84,10 @@ public class Member {
         }
 
     }
+
+
+
+
 
 
     // eBook-specific methods:

@@ -13,6 +13,7 @@ public class Library {
     private LinkedList<eBook> eBooksList;
     private LinkedList<Member> membersList;
 
+
     public Library() {
         this.bookList = new LinkedList<>();
         this.eBooksList = new LinkedList<>();
@@ -151,6 +152,20 @@ public class Library {
         }
     }
 
+    public void saveBorrowedBooks (String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Member member: membersList) {
+                for (Book book: member.getBorrowedBooks()) {
+                    writer.write(member.getMemberID()+ "," + book.getISBN());
+                    writer.newLine();
+                }
+            }
+            System.out.println("Borrowed books saved to file: " + filename);
+        } catch (IOException e) {
+            System.out.println("Error while saving borrowed books to file: " + filename);
+        }
+    }
+
     public void loadBooks(String filename) {
         try (Scanner scanner = new Scanner(new File(filename))) {
             bookList.clear();
@@ -165,6 +180,41 @@ public class Library {
             System.out.println("Books loaded from file " + filename);
         } catch (Exception e) {
             System.out.println("Error while reading from file " + filename);
+        }
+    }
+
+    public void loadBorrowedBooks (String filename) {
+        try (Scanner scanner = new Scanner (new File(filename))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split(",");
+                int memberID = Integer.parseInt(parts[0]);
+                String bookISBN = parts[1];
+
+                Member member = null;
+                for (Member m: membersList) {
+                    if (m.getMemberID() == memberID) {
+                        member = m;
+                        break;
+                    }
+                }
+
+                if (member != null) {
+                    Book book = null;
+                    for (Book b: bookList) {
+                        if (b.getISBN().equalsIgnoreCase(bookISBN)) {
+                            book = b;
+                            break;
+                        }
+                    }
+                    if (book != null) {
+                        member.borrowBook(book);
+                    }
+                }
+            }
+            System.out.println("Borrowed books loaded from file: " + filename);
+        } catch (Exception e) {
+            System.out.println("Error while loading borrowed books from file: " + filename);
         }
     }
 
@@ -414,6 +464,68 @@ public class Library {
         } catch (Exception e) {
             System.out.println("Error while loading members from file: " + filename);
         }
+    }
+
+
+    // auxiliary methods:
+
+    public Book findBookForUserMenu() {
+
+        System.out.println("Please indicate Book ISBN.");
+        String ISBN = scanner.nextLine();
+
+        Book book = null;
+
+        while (book == null) {
+            for (Book searchedBook : bookList) {
+                if (searchedBook.getISBN().equalsIgnoreCase(ISBN)) {
+                    book = searchedBook;
+                    break;
+                }
+            }
+
+            if (book == null) {
+                System.out.println("No book found with ISBN: " + ISBN + ". Please try again: ");
+                ISBN = scanner.nextLine();
+            }
+        }
+    return book;
+
+    }
+    public eBook findEBookForUserMenu() {
+
+        System.out.println("Please indicate eBook ISBN.");
+        String ISBN = scanner.nextLine();
+
+        eBook book = null;
+
+        while (book == null) {
+            for (eBook searchedBook : eBooksList) {
+                if (searchedBook.getISBN().equalsIgnoreCase(ISBN)) {
+                    book = searchedBook;
+                    break;
+                }
+            }
+
+            if (book == null) {
+                System.out.println("No book found with ISBN: " + ISBN + ". Please try again: ");
+                ISBN = scanner.nextLine();
+            }
+        }
+        return book;
+
+    }
+    public void saveProgress () {
+        saveMembers("members");
+        saveBooks("books");
+        saveEBook("eBooks");
+        saveBorrowedBooks("borrowedBooks");
+    }
+    public void loadProgress() {
+        loadMembers("members");
+        loadBooks("books");
+        loadEBook("eBooks");
+        loadBorrowedBooks("borrowedBooks");
     }
 
 }
